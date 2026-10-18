@@ -81,6 +81,13 @@ def run_scheduled_scan():
 
         if sent_count == 0:
             log_event("No new unread leads for this slot.")
+            status_msg = (
+                "ℹ️ <b>ShopLinx AI Sniper: Scan Completed</b>\n\n"
+                "✅ Scanned active discussions across r/shopify, r/ecommerce, r/dropship, r/smallbusiness.\n"
+                "📌 All current matching buyer-intent discussions have already been delivered to your chat.\n\n"
+                "⏰ Next auto-scans: <b>02:30 PM IST</b> | <b>06:30 PM IST</b>"
+            )
+            send_tg_message(CHAT_ID, status_msg)
         else:
             log_event(f"Successfully delivered {sent_count} fresh leads to Telegram!")
     except Exception as e:
