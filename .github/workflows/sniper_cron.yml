@@ -2,13 +2,23 @@ name: ShopLinx AI Sniper 24/7 Automation
 
 on:
   schedule:
-    # 09:30 AM IST (04:00 UTC)
+    # 09:30 AM IST (04:00 UTC) -> 🛍️ Shopify Official Community
     - cron: '0 4 * * *'
-    # 02:30 PM IST (09:00 UTC)
+    # 02:30 PM IST (09:00 UTC) -> 🔴 Reddit E-commerce Radar
     - cron: '0 9 * * *'
-    # 06:30 PM IST (13:00 UTC)
+    # 06:30 PM IST (13:00 UTC) -> 🌐 Combined Evening High-Velocity Radar
     - cron: '0 13 * * *'
-  workflow_dispatch: # Allows manual trigger from GitHub web anytime
+  workflow_dispatch:
+    inputs:
+      platform:
+        description: 'Choose Platform to Scan'
+        required: true
+        default: 'all'
+        type: choice
+        options:
+          - all
+          - shopify
+          - reddit
 
 permissions:
   contents: write
@@ -31,7 +41,7 @@ jobs:
           python -m pip install --upgrade pip
           pip install -r requirements.txt
 
-      - name: Run AI Sniper Scan
+      - name: Run Multi-Platform AI Sniper
         env:
           TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
           TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
@@ -41,7 +51,23 @@ jobs:
           REDDIT_PASSWORD: ${{ secrets.REDDIT_PASSWORD }}
           REDDIT_USER_AGENT: ${{ secrets.REDDIT_USER_AGENT }}
         run: |
-          python scripts/auto_scheduler.py --now
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
+            echo "Manual Trigger Selected: ${{ inputs.platform }}"
+            python scripts/auto_scheduler.py --now --platform ${{ inputs.platform }}
+          else
+            HOUR=$(date -u +%H)
+            echo "Current UTC Hour: $HOUR"
+            if [ "$HOUR" -eq 4 ]; then
+              echo "Slot: 09:30 AM IST -> Scanning Shopify Official Community"
+              python scripts/auto_scheduler.py --now --platform shopify
+            elif [ "$HOUR" -eq 9 ]; then
+              echo "Slot: 02:30 PM IST -> Scanning Reddit Discussions"
+              python scripts/auto_scheduler.py --now --platform reddit
+            else
+              echo "Slot: 06:30 PM IST -> Scanning Combined Radar"
+              python scripts/auto_scheduler.py --now --platform all
+            fi
+          fi
 
       - name: Commit & Push Seen Threads
         run: |

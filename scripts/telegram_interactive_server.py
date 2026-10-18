@@ -42,12 +42,19 @@ def send_interactive_lead_card(lead: dict, initial_mode: str = "zero_click"):
         else "2-Step Conversational Request"
     )
 
+    is_shopify = "Shopify" in lead.get('platform', '')
+    platform_icon = "🛍️" if is_shopify else "🔴"
+    platform_label = "SHOPIFY OFFICIAL COMMUNITY" if is_shopify else "REDDIT DISCUSSION"
+    button_label = "🔗 Open Shopify Community Thread" if is_shopify else "🔗 Open Reddit Thread"
+    strategy_label = "Shopify Accepted Solution Protocol (Zero-Ban)" if is_shopify else strategy_desc
+
     text = (
-        f"🎯 <b>SHOPLINX AI SNIPER: GOOGLE-RANKED LEAD</b>\n\n"
-        f"📍 <b>Platform:</b> {lead.get('platform')} ({lead.get('subreddit')})\n"
+        f"🎯 <b>SHOPLINX AI SNIPER: HIGH-INTENT LEAD</b>\n\n"
+        f"📍 <b>Platform:</b> {platform_icon} <b>{platform_label}</b>\n"
+        f"🏷️ <b>Channel/Board:</b> {lead.get('subreddit')}\n"
         f"🔥 <b>Buyer Intent:</b> {lead.get('intent_tier')} (Score: {lead.get('intent_score')}/100)\n"
         f"📌 <b>Thread:</b> {lead.get('title')}\n\n"
-        f"🛡️ <b>Anti-Ban Strategy:</b> {strategy_desc}\n\n"
+        f"🛡️ <b>Algorithm Protocol:</b> {strategy_label}\n\n"
         f"💡 <b>READY-TO-POST ANSWER:</b>\n"
         f"<code>{answer}</code>"
     )
@@ -62,7 +69,7 @@ def send_interactive_lead_card(lead: dict, initial_mode: str = "zero_click"):
                 {"text": "❌ Skip", "callback_data": f"skip:{lead_id}"}
             ],
             [
-                {"text": "🔗 Open Reddit Thread", "url": lead.get("url")}
+                {"text": button_label, "url": lead.get("url")}
             ]
         ]
     }
@@ -149,12 +156,19 @@ def handle_callback_query(callback: dict):
             else "2-Step Conversational Request"
         )
 
+        is_shopify = "Shopify" in lead.get('platform', '')
+        platform_icon = "🛍️" if is_shopify else "🔴"
+        platform_label = "SHOPIFY OFFICIAL COMMUNITY" if is_shopify else "REDDIT DISCUSSION"
+        button_label = "🔗 Open Shopify Community Thread" if is_shopify else "🔗 Open Reddit Thread"
+        strategy_label = "Shopify Accepted Solution Protocol (Zero-Ban)" if is_shopify else strategy_desc
+
         text = (
-            f"🎯 <b>SHOPLINX AI SNIPER: GOOGLE-RANKED LEAD</b>\n\n"
-            f"📍 <b>Platform:</b> {lead.get('platform')} ({lead.get('subreddit')})\n"
+            f"🎯 <b>SHOPLINX AI SNIPER: HIGH-INTENT LEAD</b>\n\n"
+            f"📍 <b>Platform:</b> {platform_icon} <b>{platform_label}</b>\n"
+            f"🏷️ <b>Channel/Board:</b> {lead.get('subreddit')}\n"
             f"🔥 <b>Buyer Intent:</b> {lead.get('intent_tier')} (Score: {lead.get('intent_score')}/100)\n"
             f"📌 <b>Thread:</b> {lead.get('title')}\n\n"
-            f"🛡️ <b>Anti-Ban Strategy:</b> {strategy_desc} [REGENERATED]\n\n"
+            f"🛡️ <b>Algorithm Protocol:</b> {strategy_label} [REGENERATED]\n\n"
             f"💡 <b>READY-TO-POST ANSWER:</b>\n"
             f"<code>{new_answer}</code>"
         )
@@ -163,7 +177,7 @@ def handle_callback_query(callback: dict):
             "inline_keyboard": [
                 [{"text": "✅ Approve & Auto-Post", "callback_data": f"post:{lead_id}"}],
                 [{"text": "🔄 Regenerate", "callback_data": f"regen:{lead_id}"}, {"text": "❌ Skip", "callback_data": f"skip:{lead_id}"}],
-                [{"text": "🔗 Open Reddit Thread", "url": lead.get("url")}]
+                [{"text": button_label, "url": lead.get("url")}]
             ]
         }
 

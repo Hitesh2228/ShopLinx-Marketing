@@ -159,4 +159,11 @@ def generate_banproof_answer(lead: Dict, mode: str = "zero_click") -> str:
                 "Feel free to ask if you need guidance on setting up official Meta Cloud API credentials."
             )
 
-    return body + signoff
+    base_answer = body + signoff
+
+    if lead.get("platform") == "Shopify Community":
+        shopify_header = "From an architectural standpoint on Shopify, here is how to resolve this cleanly without app bloat or webhook latency:\n\n"
+        shopify_footer = "\n\nHope this technical breakdown helps your store operations! Let me know if you run into any specific edge cases."
+        return shopify_header + base_answer + shopify_footer
+
+    return base_answer

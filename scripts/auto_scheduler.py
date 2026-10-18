@@ -55,13 +55,13 @@ def save_seen_thread(url: str):
     with open(SEEN_THREADS_FILE, "a", encoding="utf-8") as f:
         f.write(url + "\n")
 
-def run_scheduled_scan():
+def scan_platform(platform_name: str, lead_fetcher_func, max_leads: int = 3):
     now_str = datetime.now().strftime("%Y-%m-%d %I:%M %p")
-    log_event(f"Starting Scheduled AI Sniper Scan at {now_str}...")
+    log_event(f"Starting Scheduled AI Sniper Scan for [{platform_name}] at {now_str}...")
 
     try:
         seen = load_seen_threads()
-        all_leads = get_real_verified_threads()
+        all_leads = lead_fetcher_func()
         sent_count = 0
 
         for lead in all_leads:
@@ -74,33 +74,46 @@ def run_scheduled_scan():
                 save_seen_thread(url)
                 seen.add(url)
                 sent_count += 1
-                log_event(f"[SUCCESS] Delivered lead to Telegram: {lead.get('title')[:40]}...")
+                log_event(f"[SUCCESS] Delivered {platform_name} lead to Telegram: {lead.get('title')[:40]}...")
 
-            if sent_count >= 3:
+            if sent_count >= max_leads:
                 break
 
         if sent_count == 0:
-            log_event("No new unread leads for this slot.")
+            log_event(f"No new unread leads for {platform_name} in this slot.")
             status_msg = (
-                "ℹ️ <b>ShopLinx AI Sniper: Scan Completed</b>\n\n"
-                "✅ Scanned active discussions across r/shopify, r/ecommerce, r/dropship, r/smallbusiness.\n"
-                "📌 All current matching buyer-intent discussions have already been delivered to your chat.\n\n"
-                "⏰ Next auto-scans: <b>02:30 PM IST</b> | <b>06:30 PM IST</b>"
+                f"ℹ️ <b>ShopLinx AI Sniper: {platform_name} Scan Completed</b>\n\n"
+                f"✅ Scanned active discussions on {platform_name}.\n"
+                f"📌 All current matching buyer-intent discussions have already been delivered to your chat.\n\n"
+                f"⏰ Next scheduled scan in pipeline."
             )
             send_tg_message(CHAT_ID, status_msg)
         else:
-            log_event(f"Successfully delivered {sent_count} fresh leads to Telegram!")
+            log_event(f"Successfully delivered {sent_count} fresh {platform_name} leads to Telegram!")
     except Exception as e:
-        log_event(f"[SCAN ERROR] Exception occurred during scan: {e}")
+        log_event(f"[SCAN ERROR] Exception in {platform_name} scan: {e}")
+
+def run_shopify_scan():
+    from shopify_community_scanner import get_shopify_community_leads
+    scan_platform("Shopify Community", get_shopify_community_leads, max_leads=3)
+
+def run_reddit_scan():
+    from serp_rank_scanner import get_real_verified_threads
+    scan_platform("Reddit", get_real_verified_threads, max_leads=3)
+
+def run_all_scans():
+    run_shopify_scan()
+    time.sleep(2)
+    run_reddit_scan()
 
 def start_scheduler():
     print("=" * 65)
-    print("  ⏰ SHOPLINX AI SNIPER AUTOMATED 24/7 DAEMON ACTIVE")
+    print("  ⏰ SHOPLINX AI SNIPER MULTI-PLATFORM 24/7 DAEMON ACTIVE")
     print("=" * 65)
-    print("Scheduled Daily Slots:")
-    print("  • Morning Slot : 09:30 AM (Morning Business Prime Time)")
-    print("  • Afternoon Slot: 02:30 PM (Mid-Day E-commerce Updates)")
-    print("  • Evening Slot : 06:30 PM (Evening Discussions & US Peak Hours)")
+    print("Scheduled Daily Platform Slots:")
+    print("  • 09:30 AM IST : 🛍️ Shopify Official Community (Morning Merchant Peak)")
+    print("  • 02:30 PM IST : 🔴 Reddit Live Discussions (Mid-Day E-commerce)")
+    print("  • 06:30 PM IST : 🌐 Evening High-Velocity Radar (Shopify + Reddit Combined)")
     print("-" * 65)
 
     # 1. Start background Telegram Listener thread for buttons and commands (/status, /scan)
@@ -108,16 +121,19 @@ def start_scheduler():
     listener_thread.start()
     log_event("Interactive Telegram Listener thread launched.")
 
-    # 2. Schedule times
-    schedule.every().day.at("09:30").do(run_scheduled_scan)
-    schedule.every().day.at("14:30").do(run_scheduled_scan)
-    schedule.every().day.at("18:30").do(run_scheduled_scan)
+    # 2. Schedule times per platform
+    schedule.every().day.at("09:30").do(run_shopify_scan)
+    schedule.every().day.at("14:30").do(run_reddit_scan)
+    schedule.every().day.at("18:30").do(run_all_scans)
 
     # 3. Notify user on Telegram that daemon is awake
     startup_msg = (
-        "🟢 <b>ShopLinx AI Sniper 24/7 System Online!</b>\n\n"
-        "✅ Automated scans scheduled at: <b>09:30 AM | 02:30 PM | 06:30 PM</b>\n"
-        "💡 You can send <b>/status</b> to verify bot uptime, or <b>/scan</b> to get fresh leads right now!"
+        "🟢 <b>ShopLinx AI Sniper Multi-Platform 24/7 Online!</b>\n\n"
+        "📅 <b>Dedicated Platform Timings:</b>\n"
+        "• 🌅 <b>09:30 AM IST:</b> 🛍️ Shopify Official Community\n"
+        "• ☀️ <b>02:30 PM IST:</b> 🔴 Reddit E-commerce Radar\n"
+        "• 🌆 <b>06:30 PM IST:</b> 🌐 Evening Combined High-Velocity Radar\n\n"
+        "💡 Send <b>/status</b> or <b>/scan</b> anytime from your phone!"
     )
     send_tg_message(CHAT_ID, startup_msg)
     log_event("Startup Telegram notification dispatched.")
@@ -134,10 +150,16 @@ if __name__ == "__main__":
     import argparse
     parser = argparse.ArgumentParser()
     parser.add_argument("--now", action="store_true", help="Run a scan immediately")
+    parser.add_argument("--platform", choices=["shopify", "reddit", "all"], default="all", help="Target platform to scan")
     args = parser.parse_args()
 
     if args.now:
-        run_scheduled_scan()
+        if args.platform == "shopify":
+            run_shopify_scan()
+        elif args.platform == "reddit":
+            run_reddit_scan()
+        else:
+            run_all_scans()
     else:
         start_scheduler()
 
