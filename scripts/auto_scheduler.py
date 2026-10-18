@@ -101,10 +101,16 @@ def run_reddit_scan():
     from serp_rank_scanner import get_real_verified_threads
     scan_platform("Reddit", get_real_verified_threads, max_leads=3)
 
+def run_youtube_scan():
+    from youtube_video_scanner import get_youtube_video_leads
+    scan_platform("YouTube", get_youtube_video_leads, max_leads=3)
+
 def run_all_scans():
     run_shopify_scan()
     time.sleep(2)
     run_reddit_scan()
+    time.sleep(2)
+    run_youtube_scan()
 
 def start_scheduler():
     print("=" * 65)
@@ -113,7 +119,7 @@ def start_scheduler():
     print("Scheduled Daily Platform Slots:")
     print("  • 09:30 AM IST : 🛍️ Shopify Official Community (Morning Merchant Peak)")
     print("  • 02:30 PM IST : 🔴 Reddit Live Discussions (Mid-Day E-commerce)")
-    print("  • 06:30 PM IST : 🌐 Evening High-Velocity Radar (Shopify + Reddit Combined)")
+    print("  • 06:30 PM IST : 📺 YouTube Competitor & Video Radar (Evening Prime)")
     print("-" * 65)
 
     # 1. Start background Telegram Listener thread for buttons and commands (/status, /scan)
@@ -124,7 +130,7 @@ def start_scheduler():
     # 2. Schedule times per platform
     schedule.every().day.at("09:30").do(run_shopify_scan)
     schedule.every().day.at("14:30").do(run_reddit_scan)
-    schedule.every().day.at("18:30").do(run_all_scans)
+    schedule.every().day.at("18:30").do(run_youtube_scan)
 
     # 3. Notify user on Telegram that daemon is awake
     startup_msg = (
@@ -132,7 +138,7 @@ def start_scheduler():
         "📅 <b>Dedicated Platform Timings:</b>\n"
         "• 🌅 <b>09:30 AM IST:</b> 🛍️ Shopify Official Community\n"
         "• ☀️ <b>02:30 PM IST:</b> 🔴 Reddit E-commerce Radar\n"
-        "• 🌆 <b>06:30 PM IST:</b> 🌐 Evening Combined High-Velocity Radar\n\n"
+        "• 🌆 <b>06:30 PM IST:</b> 📺 YouTube Competitor & Video Radar\n\n"
         "💡 Send <b>/status</b> or <b>/scan</b> anytime from your phone!"
     )
     send_tg_message(CHAT_ID, startup_msg)
@@ -150,7 +156,7 @@ if __name__ == "__main__":
     import argparse
     parser = argparse.ArgumentParser()
     parser.add_argument("--now", action="store_true", help="Run a scan immediately")
-    parser.add_argument("--platform", choices=["shopify", "reddit", "all"], default="all", help="Target platform to scan")
+    parser.add_argument("--platform", choices=["shopify", "reddit", "youtube", "all"], default="all", help="Target platform to scan")
     args = parser.parse_args()
 
     if args.now:
@@ -158,6 +164,8 @@ if __name__ == "__main__":
             run_shopify_scan()
         elif args.platform == "reddit":
             run_reddit_scan()
+        elif args.platform == "youtube":
+            run_youtube_scan()
         else:
             run_all_scans()
     else:

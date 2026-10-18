@@ -43,10 +43,11 @@ def send_interactive_lead_card(lead: dict, initial_mode: str = "zero_click"):
     )
 
     is_shopify = "Shopify" in lead.get('platform', '')
-    platform_icon = "🛍️" if is_shopify else "🔴"
-    platform_label = "SHOPIFY OFFICIAL COMMUNITY" if is_shopify else "REDDIT DISCUSSION"
-    button_label = "🔗 Open Shopify Community Thread" if is_shopify else "🔗 Open Reddit Thread"
-    strategy_label = "Shopify Accepted Solution Protocol (Zero-Ban)" if is_shopify else strategy_desc
+    is_youtube = "YouTube" in lead.get('platform', '')
+    platform_icon = "🛍️" if is_shopify else "📺" if is_youtube else "🔴"
+    platform_label = "SHOPIFY OFFICIAL COMMUNITY" if is_shopify else "YOUTUBE COMPETITOR & VIDEO RADAR" if is_youtube else "REDDIT DISCUSSION"
+    button_label = "🔗 Open Shopify Community Thread" if is_shopify else "🔗 Open YouTube Video Discussion" if is_youtube else "🔗 Open Reddit Thread"
+    strategy_label = "Shopify Accepted Solution Protocol (Zero-Ban)" if is_shopify else "YouTube Top-Comment Protocol (Zero-Link Safe)" if is_youtube else strategy_desc
 
     text = (
         f"🎯 <b>SHOPLINX AI SNIPER: HIGH-INTENT LEAD</b>\n\n"
@@ -157,10 +158,11 @@ def handle_callback_query(callback: dict):
         )
 
         is_shopify = "Shopify" in lead.get('platform', '')
-        platform_icon = "🛍️" if is_shopify else "🔴"
-        platform_label = "SHOPIFY OFFICIAL COMMUNITY" if is_shopify else "REDDIT DISCUSSION"
-        button_label = "🔗 Open Shopify Community Thread" if is_shopify else "🔗 Open Reddit Thread"
-        strategy_label = "Shopify Accepted Solution Protocol (Zero-Ban)" if is_shopify else strategy_desc
+        is_youtube = "YouTube" in lead.get('platform', '')
+        platform_icon = "🛍️" if is_shopify else "📺" if is_youtube else "🔴"
+        platform_label = "SHOPIFY OFFICIAL COMMUNITY" if is_shopify else "YOUTUBE COMPETITOR & VIDEO RADAR" if is_youtube else "REDDIT DISCUSSION"
+        button_label = "🔗 Open Shopify Community Thread" if is_shopify else "🔗 Open YouTube Video Discussion" if is_youtube else "🔗 Open Reddit Thread"
+        strategy_label = "Shopify Accepted Solution Protocol (Zero-Ban)" if is_shopify else "YouTube Top-Comment Protocol (Zero-Link Safe)" if is_youtube else strategy_desc
 
         text = (
             f"🎯 <b>SHOPLINX AI SNIPER: HIGH-INTENT LEAD</b>\n\n"

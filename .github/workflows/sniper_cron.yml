@@ -19,6 +19,7 @@ on:
           - all
           - shopify
           - reddit
+          - youtube
 
 permissions:
   contents: write
@@ -64,8 +65,8 @@ jobs:
               echo "Slot: 02:30 PM IST -> Scanning Reddit Discussions"
               python scripts/auto_scheduler.py --now --platform reddit
             else
-              echo "Slot: 06:30 PM IST -> Scanning Combined Radar"
-              python scripts/auto_scheduler.py --now --platform all
+              echo "Slot: 06:30 PM IST -> Scanning YouTube Competitor & Video Radar"
+              python scripts/auto_scheduler.py --now --platform youtube
             fi
           fi
 

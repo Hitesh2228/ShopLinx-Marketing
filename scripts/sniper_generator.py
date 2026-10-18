@@ -166,4 +166,10 @@ def generate_banproof_answer(lead: Dict, mode: str = "zero_click") -> str:
         shopify_footer = "\n\nHope this technical breakdown helps your store operations! Let me know if you run into any specific edge cases."
         return shopify_header + base_answer + shopify_footer
 
+    elif lead.get("platform") == "YouTube":
+        yt_header = "Solid video breakdown! One practical operational tip for eCommerce merchants scaling this:\n\n"
+        yt_footer = "\n\nHope this helps anyone planning their Q4 marketing tech stack!"
+        clean_yt_body = base_answer.replace("https://www.shoplinx.ai/blog/", "search 'ShopLinx guide' for ")
+        return yt_header + clean_yt_body + yt_footer
+
     return base_answer
